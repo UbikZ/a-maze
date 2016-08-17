@@ -1,0 +1,37 @@
+#!/bin/sh -
+
+# Tip to use shell
+true ,/^; exec awk -f "$0" -v mainFile="$0" -- "$@"; exit #/ {}
+
+BEGIN {
+  # Include files
+  include("./lib/game.awk");
+  sourceIncludes();
+
+  # Launch game functions
+  initContext();
+  mainLoop();
+}
+
+# function to incldue files
+function include(includeFile) {
+  includes[includeFile]
+}
+
+# Function to build execution string to require
+function sourceIncludes() {
+  if (!loaded) {
+    "which awk" | getline awkPath
+    scriptname = awkPath " -f "mainFile;
+
+    for (i = 1; i < ARGC; i++) {
+      args = args " "ARGV[i];
+    }
+    for (file in includes) {
+      includeString = includeString " -f "file;
+    }
+    cmd = sprintf("%s %s -v loaded=1 -- %s\n", scriptname, includeString, args);
+    system(cmd);
+    exit;
+  }
+}
