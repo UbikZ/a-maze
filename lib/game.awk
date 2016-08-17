@@ -1,14 +1,13 @@
 #!/usr/bin/awk -f
 
 function initContext() {
-  width = 64;
-  height = 200;
+  width = 40;
+  height = 100;
   buffer[width, height];
 
-  moveSpeed = 1;
+  speed = 1;
   moves = 0;
   score = 0;
-  alive=1;
 
   KEY_UP = "z";
   KEY_LEFT = "q";
@@ -16,27 +15,27 @@ function initContext() {
   KEY_DOWN = "s";
   KEY_EXIT = "x";
 
-  dirX = 0;
-  dirY = 0;
+  deltaX = 1;
+  deltaY = 1;
 
   posX = 30;
   posY = 20;
-
-  inputKey = KEY_UP;
 }
 
 function mainLoop(number) {
   while(1) {
-    if (alive == 0) {
-      break;
-    }
     fillBackground();
-    draw();
-    printf("%s", inputKey);
-    inputKey = getline input;
     handlePosition();
+    draw();
+
+    system("stty -echo");
+    cmd = "saved=$(stty -g); stty raw; var=$(dd bs=1 count=1 2>/dev/null); stty \"$saved\"; echo \"$var\"";
+    cmd | getline input;
+    close(cmd)
+    system("stty echo");
+
     if (input == KEY_EXIT) {
-      break;
+      exit;
     }
   }
 }
@@ -54,34 +53,43 @@ function fillBackground() {
 }
 
 function handlePosition() {
-  if (inputKey == KEY_UP) {
-    newPosX = posX + dirX * moveSpeed;
-    newPosY = posY + dirY * moveSpeed;
-  } else if (inputKey == KEY_LEFT) {
-    newPosX = posX - dirY * moveSpeed;
-    newPosY = posY + dirX * moveSpeed;
-  } else if (inputKey == KEY_RIGHT) {
-    newPosX = posX + dirY * moveSpeed;
-    newPosY = posY - dirX * moveSpeed;
-  } else if (inputKey == KEY_DOWN) {
-    newPosX = posX - dirX * moveSpeed;
-    newPosY = posY - dirY * moveSpeed;
-  } else {
-    newPosX = posX;
-    newPosY = posY;
+  str = KEY_UP KEY_DOWN KEY_LEFT KEY_RIGHT;
+  newPosX = posX;
+  newPosY = posY;
+
+  if (input == KEY_UP && posX > 1) {
+    moves++;
+    newPosX = posX - deltaX * speed;
+  } else if (input == KEY_LEFT && posY > 1) {
+    moves++;
+    newPosY = posY - deltaY * speed;
+  } else if (input == KEY_RIGHT && posY < (height - 2)) {
+    moves++;
+    newPosY = posY + deltaY * speed;
+  } else if (input == KEY_DOWN && posX < (width - 2)) {
+    moves++;
+    newPosX = posX + deltaX * speed;
   }
+
   posX = newPosX;
   posY = newPosY;
-  buffer[posX, posY] = "X";
+  buffer[newPosX, newPosY] = "X";
 }
 
 function draw() {
-  print "\033[H"
+  print("\033[H");
   for (x = 0; x < width; x++) {
     for (y = 0; y < height; y++) {
-      printf buffer[x, y];
+      printf(buffer[x, y]);
     }
-    printf "\n";
+    printf("\n");
   }
-  print "\033[J"
+  drawUI();
+  print("\033[J");
+}
+
+function drawUI() {
+  infoKeys = sprintf("> Keys : [↑ %s] [→ %s] [↓ %s] [← %s] [Exit x]", KEY_UP, KEY_RIGHT, KEY_DOWN, KEY_LEFT);
+  infoMoves = sprintf("> Position : [x = %d ; y = %d] | Moves : %d", posX, posY, moves);
+  printf ("%s\n%s", infoKeys, infoMoves);
 }
