@@ -3,7 +3,7 @@
 function initContext() {
   width = 40;
   height = 100;
-  buffer[width, height];
+  maze[width, height];
 
   speed = 1;
   moves = 0;
@@ -18,13 +18,14 @@ function initContext() {
   deltaX = 1;
   deltaY = 1;
 
-  posX = 30;
-  posY = 20;
+  posX = 1;
+  posY = 1;
+
+  initMaze(maze, width, height, posX, posY);
 }
 
 function mainLoop(number) {
   while(1) {
-    fillBackground();
     handlePosition();
     draw();
 
@@ -40,47 +41,44 @@ function mainLoop(number) {
   }
 }
 
-function fillBackground() {
-  for (x = 0; x < width; x++) {
-    for (y = 0; y < height; y++) {
-      if (x == 0 || y == 0 || x == (width - 1) || y == (height - 1)) {
-        buffer[x, y] = "O";
-      } else {
-          buffer[x, y]= " ";
-      }
-    }
-  }
-}
-
 function handlePosition() {
   str = KEY_UP KEY_DOWN KEY_LEFT KEY_RIGHT;
+  maze[posX][posY] = 0; # Reset position
   newPosX = posX;
   newPosY = posY;
 
   if (input == KEY_UP && posX > 1) {
-    moves++;
     newPosX = posX - deltaX * speed;
   } else if (input == KEY_LEFT && posY > 1) {
-    moves++;
     newPosY = posY - deltaY * speed;
   } else if (input == KEY_RIGHT && posY < (height - 2)) {
-    moves++;
     newPosY = posY + deltaY * speed;
   } else if (input == KEY_DOWN && posX < (width - 2)) {
-    moves++;
     newPosX = posX + deltaX * speed;
   }
 
-  posX = newPosX;
-  posY = newPosY;
-  buffer[newPosX, newPosY] = "X";
+  # Check walls collision
+  if (maze[newPosX][newPosY] != 1) {
+    moves++;
+    posX = newPosX;
+    posY = newPosY;
+    maze[newPosX][newPosY] = 2;
+  } else {
+    maze[posX][posY] = 2;
+  }
 }
 
 function draw() {
   print("\033[H");
   for (x = 0; x < width; x++) {
     for (y = 0; y < height; y++) {
-      printf(buffer[x, y]);
+      if (maze[x][y] == 1) {
+        printPixel("100", "", " ");
+      } else if (maze[x][y] == 2) {
+        printPixel("102", "", " ");
+      } else {
+        printPixel("40", "", " ");
+      }
     }
     printf("\n");
   }

@@ -6,6 +6,7 @@ true ,/^; exec awk -f "$0" -v mainFile="$0" -- "$@"; exit #/ {}
 BEGIN {
   # Include files
   include("./lib/game.awk");
+  include("./lib/maze.awk");
   sourceIncludes();
 
   # Launch game functions
