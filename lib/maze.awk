@@ -37,18 +37,24 @@ function _rand(max, val) {
 }
 
 # Generate array with random numbers
-function _randArray(rdm, max, len, val) {
-  i = 0; j = 0;
-  while (length(rdm) != len) {
-    random = _rand(max, i);
+function _randArray(array, max, len, val) {
+  if (length(val) == 0) {
+    val = 1;
+  }
+  i = 0; j = 0; stack = "";
+  printf max " - " length(stack) " - " len " - " val " -> "
+  while (length(stack) != len) {
+    random = _rand(max, i * val);
     # Check the unicity
     if ((length(stack) == 0) || (index(stack, random) == 0)) {
-      rdm[j] = random;
+      array[j] = random;
       stack = stack random;
       j++;
+      printf random " "
     }
     i++;
   }
+  printf "\n"
 }
 
 function buildMaze(maze, width, height) {
@@ -72,6 +78,8 @@ function recurseGeneration(maze, fromPosX, fromPosY, xMax, yMax, depth) {
   for (i = 0; i < length(randDirections); i++) {
     randDirection = randDirections[i];
 
+    print "[" depth "] => " randDirection " { " newPosX ", " newPosY " }"
+
     if (randDirection == 0) { # UP
       if (fromPosX - 2 <= 0) {
         continue;
@@ -83,7 +91,8 @@ function recurseGeneration(maze, fromPosX, fromPosY, xMax, yMax, depth) {
         maze[fromPosX - 1, newPosY] = 0;
         recurseGeneration(maze, newPosX, newPosY, xMax, yMax, depth);
       }
-    } else if (randDirection == 1) { # RIGHT
+    }
+    if (randDirection == 1) { # RIGHT
       if (fromPosY + 2 >= xMax - 1) {
         continue;
       }
@@ -94,7 +103,8 @@ function recurseGeneration(maze, fromPosX, fromPosY, xMax, yMax, depth) {
         maze[newPosX, fromPosY + 1] = 0;
         recurseGeneration(maze, newPosX, newPosY, xMax, yMax, depth);
       }
-    } else if (randDirection == 2) { # BOTTOM
+    }
+    if (randDirection == 2) { # BOTTOM
       if (fromPosX + 2 >= yMax - 1) {
         continue;
       }
@@ -105,7 +115,8 @@ function recurseGeneration(maze, fromPosX, fromPosY, xMax, yMax, depth) {
         maze[fromPosX + 1, newPosY] = 0;
         recurseGeneration(maze, newPosX, newPosY, xMax, yMax, depth);
       }
-    } else if (randDirection == 3) { # LEFT
+    }
+    if (randDirection == 3) { # LEFT
       if (fromPosY - 2 <= 0) {
         continue;
       }
