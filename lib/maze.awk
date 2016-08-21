@@ -53,10 +53,9 @@ function buildMaze(maze, width, height) {
 
 function recurseGeneration(maze, fromPosX, fromPosY, xMax, yMax, depth) {
   _randArray(randDirections, 4, 4, depth); # 0 : UP | 1 : RIGHT | 2 : BOTTOM | 3 : LEFT
-  newPosX = fromPosX;
-  newPosY = fromPosY;
   disableRecursion = false;
   depth++;
+  endPoint = 0;
 
   #if (depth > 6) exit;
 
@@ -65,54 +64,75 @@ function recurseGeneration(maze, fromPosX, fromPosY, xMax, yMax, depth) {
 
     #print "[" depth "] => " randDirection " { " newPosX ", " newPosY " }"
 
-    if (randDirection == 0) { # UP
-      if (fromPosX - 2 <= 0) {
-        continue;
-      }
+    switch (randDirection) {
+      case 0: # UP
+        if (fromPosX - 2 <= 0) {
+          continue;
+        }
 
-      newPosX = fromPosX - 2;
-      if (maze[newPosX][newPosY] != 0) {
-        maze[newPosX][newPosY] = 0;
-        maze[fromPosX - 1][newPosY] = 0;
-        recurseGeneration(maze, newPosX, newPosY, xMax, yMax, depth);
-      }
-    }
-    if (randDirection == 1) { # RIGHT
-      if (fromPosY + 2 >= yMax - 1) {
-        continue;
-      }
+        if (maze[fromPosX - 2][fromPosY] == 1) {
+          debug = "[" depth "] => UP {" (fromPosX - 2) ", " fromPosY "}"
+          #system("echo \"" debug "\" >> test")
 
-      newPosY = fromPosY + 2;
-      if (maze[newPosX][fromPosY + 2] != 0) {
-        maze[newPosX][newPosY] = 0;
-        maze[newPosX][fromPosY + 1] = 0;
-        recurseGeneration(maze, newPosX, newPosY, xMax, yMax, depth);
-      }
-    }
-    if (randDirection == 2) { # BOTTOM
-      if (fromPosX + 2 >= xMax - 1) {
-        continue;
-      }
+          maze[fromPosX - 2][fromPosY] = 0;
+          maze[fromPosX - 1][fromPosY] = 0;
+          recurseGeneration(maze, fromPosX - 2, fromPosY, xMax, yMax, depth);
+        } else {
+          endPoint++;
+        }
+        break;
+      case 1: # RIGHT
+        if (fromPosY + 2 >= yMax - 1) {
+          continue;
+        }
+        if (maze[fromPosX][fromPosY + 2] == 1) {
+          debug = "[" depth "] => RIGHT {" (fromPosX) ", " (fromPosY + 2) "}"
+          #system("echo \"" debug "\" >> test")
 
-      newPosX = fromPosX + 2;
-      if (maze[newPosX][newPosY] != 0) {
-        maze[newPosX][newPosY] = 0;
-        maze[fromPosX + 1][newPosY] = 0;
-        recurseGeneration(maze, newPosX, newPosY, xMax, yMax, depth);
-      }
-    }
-    if (randDirection == 3) { # LEFT
-      if (fromPosY - 2 <= 0) {
-        continue;
-      }
+          maze[fromPosX][fromPosY + 2] = 0;
+          maze[fromPosX][fromPosY + 1] = 0;
+          recurseGeneration(maze, fromPosX, fromPosY + 2, xMax, yMax, depth);
+        } else {
+          endPoint++;
+        }
+        break;
+      case 2: # BOTTOM
+        if (fromPosX + 2 >= xMax - 1) {
+          continue;
+        }
 
-      newPosY = fromPosY - 2;
-      if (maze[newPosX][newPosY] != 0) {
-        maze[newPosX][newPosY] = 0;
-        maze[newPosX][fromPosY - 1] = 0;
-        recurseGeneration(maze, newPosX, newPosY, xMax, yMax, depth);
-      }
+        if (maze[fromPosX + 2][fromPosY] == 1) {
+          debug = "[" depth "] => BOT {" (fromPosX + 2) ", " fromPosY "}"
+          #system("echo \"" debug "\" >> test")
+
+          maze[fromPosX + 2][fromPosY] = 0;
+          maze[fromPosX + 1][fromPosY] = 0;
+          recurseGeneration(maze, fromPosX + 2, fromPosY, xMax, yMax, depth);
+        } else {
+          endPoint++;
+        }
+        break;
+      case 3: # LEFT
+        if (fromPosY - 2 <= 0) {
+          continue;
+        }
+
+        if (maze[fromPosX][fromPosY - 2] == 1) {
+          debug = "[" depth "] => LEFT {" (fromPosY) ", " (fromPosY - 2) "}"
+          #system("echo \"" debug "\" >> test")
+
+          maze[fromPosX][fromPosY - 2] = 0;
+          maze[fromPosX][fromPosY - 1] = 0;
+          recurseGeneration(maze, fromPosX, fromPosY - 2, xMax, yMax, depth);
+        } else {
+          endPoint++;
+        }
+        break;
     }
+  }
+
+  if (endPoint == length(randDirections)) {
+    maze[fromPosX][fromPosY] = 3;
   }
 }
 

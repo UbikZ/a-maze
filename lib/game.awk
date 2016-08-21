@@ -59,7 +59,9 @@ function handlePosition() {
 
   # Check walls collision
   if (maze[newPosX][newPosY] != 1) {
-    moves++;
+    if (index(str, input) > 0) {
+      moves++;
+    }
     posX = newPosX;
     posY = newPosY;
     maze[newPosX][newPosY] = 2;
@@ -76,6 +78,8 @@ function draw() {
         printPixel("100", "", " ");
       } else if (maze[x][y] == 2) {
         printPixel("102", "", " ");
+      } else if (maze[x][y] == 3) {
+        printPixel("101", "", " ");
       } else {
         printPixel("40", "", " ");
       }
